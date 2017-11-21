@@ -53,73 +53,82 @@ playVideoOnScroll();
 
 /*Comienzo de petición AJAX*/
 
+//Declaración de variables
 
 var $colContenido = $('.colContenido')
-var $boton = $('#mostrarTodos')
+var $boton = $('#mostrarTodos');
+var ciudades = ["New York", "Houston", "Miami", "Orlando", "Los Angeles", "Washington"];
+var tipos = ["Casa", "Casa de Campo", "Apartamento"];
 
 $(document).ready(function(){
-
-  $('select').material_select()
-  var ciudades = ["New York", "Orlando", "Los Angeles", "Houston", "Washington", "Miami"];
-  var tipos = ["Casa", "Casa de Campo", "Apartamento"];
-
   for(var i = 0; i < ciudades.length; i++){
-    $('#selectCiudad').append('<option>' + ciudades[i] + '</option>')
+    $('#selectCiudad').append('<option>' + ciudades[i] + '</option>');
   }
-
   for(var i = 0; i < tipos.length; i++){
     $('#selectTipo').append('<option>' + tipos[i] + '</option>')
   }
+  $('select').material_select();
 
-  $('select').material_select()
 
- $('#submitButton').click(function(event){
-  event.preventDefault();
+  //Formulario izquierda
+  $('#formulario').submit(function(event){
+    event.preventDefault();
 
     var ciudad = $('#selectCiudad').val();
     var tipo = $('#selectTipo').val();
+    var precio = $('#rangoPrecio').val();
 
     $.ajax({
-      url: 'buscador.php',
+      url: './buscador.php',
       type: 'POST',
       data: {ciudad: ciudad, tipo: tipo},
       success: function(data){
-        $.getJSON('http://localhost/Buscador/data-1.json', function(json){;
+        var opcionCiudad = data.c;
+        var opcionTipo =  data.t;
+        $.getJSON('http://localhost/Buscador/data-1.json', function(json){
+          $colContenido.empty();
           for(var i = 0; i < json.length; i++){
-            if(json[i].Ciudad == data.c){
-              $colContenido.append('<div style="background-color: #CCC; margin: 10px">  <img src="img/home.jpg" style="width: 30%; margin: 10px">' + "<p style='margin-left: 10px'>" + 'Ciudad: ' + json[i].Ciudad + ". Tipo: " + json[i].Tipo + ". Direccion: " + json[i].Direccion + " Telefono: " + json[i].Telefono + ". Precio: " + json[i].Precio + "</p>" + "</div>");
+            //Filtro de ciudad
+            if(json[i].Tipo == opcionTipo && json[i].Ciudad == opcionCiudad){
+              $colContenido.append('<div style="padding: 15px; margin: 15px; background-color: #CCC"> <img src="img/home.jpg" style="width:20%"/><p> Ciudad: ' + json[i].Ciudad + '. Tipo: ' + json[i].Tipo + '. Direccion: ' + json[i].Direccion + '. Telefono: ' + json[i].Telefono + '</p></div>');
             }
-            else if(json[i].Tipo == data.t){
-              $colContenido.append('<div style="background-color: #CCC; margin: 10px">  <img src="img/home.jpg" style="width: 30%; margin: 10px">' + "<p style='margin-left: 10px'>" + 'Tipo de Inmueble: ' + json[i].Tipo + ". Ciudad: " + json[i].Ciudad + ". Direccion: " + json[i].Direccion + " Telefono: " + json[i].Telefono + ". Precio: " + json[i].Precio + "</p>" + "</div>");
-            }
-
-
-            else if(json[i].Ciudad == data.c && json[i].Tipo == data.t){
-              $colContenido.append('<div style="background-color: #CCC; margin: 10px">  <img src="img/home.jpg" style="width: 30%; margin: 10px">' + "<p style='margin-left: 10px'>" + 'Ciudad: ' + json[i].Ciudad + ". Tipo: " + json[i].Tipo + ". Direccion: " + json[i].Direccion + " Telefono: " + json[i].Telefono + ". Precio: " + json[i].Precio + "</p>" + "</div>");
+          }
+          for(var i = 0; i < json.length; i++){
+            //Filtro de ciudad
+            if(json[i].Ciudad == opcionCiudad){
+              $colContenido.append('<div style="padding: 15px; margin: 15px; background-color: #CCC"> <img src="img/home.jpg" style="width:20%"/><p> Ciudad: ' + json[i].Ciudad + '. Tipo: ' + json[i].Tipo + '. Direccion: ' + json[i].Direccion + '. Telefono: ' + json[i].Telefono + '</p></div>');
             }
 
           }
-
+          for(var i = 0; i < json.length; i++){
+            //Filtro de ciudad
+            if(json[i].Tipo == opcionTipo){
+              $colContenido.append('<div style="padding: 15px; margin: 15px; background-color: #CCC"> <img src="img/home.jpg" style="width:20%"/><p> Ciudad: ' + json[i].Ciudad + '. Tipo: ' + json[i].Tipo + '. Direccion: ' + json[i].Direccion + '. Telefono: ' + json[i].Telefono + '</p></div>');
+            }
+          }
         })
       }
     })
- })
-  
-  $boton.click(function(){
-    $.ajax({
-      url: 'http://localhost/Buscador/data-1.json',
-      type: 'GET',
-      dataType: 'json',
-      success: function(data){
-        for(var i = 0; i < 100; i++){
-          $colContenido.append('<div style="background-color: #CCC; margin: 10px">  <img src="img/home.jpg" style="width: 30%; margin: 10px">' + "<p style='margin-left: 10px'>" + 'Tipo de inmueble: ' + data[i].Tipo + ". Ciudad: " + data[i].Ciudad + ". Direccion: " + data[i].Direccion + " Telefono: " + data[i].Telefono + ". Precio: " + data[i].Precio + "</p>" + "</div>");
 
-        }
-      }
-    })
+
   })
 
 
-  
+  $boton.click(function(){
+    
+      $.ajax({
+        url: 'http://localhost/Buscador/data-1.json',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data){
+          $colContenido.after().empty();
+          for (var i = 0; i < data.length; i++){
+            $colContenido.append('<div style="margin: 15px; background-color: #CCC; padding: 15px"> <img src="img/home.jpg" style="width:20%"> <p> Ciudad: ' + data[i].Ciudad + '. Tipo de Inmueble: ' + data[i].Tipo + '. Direccion: ' + data[i].Direccion + '. Telefono: ' + data[i].Telefono + '. Precio: ' + data.Precio + '</p></div>')
+          }
+
+
+        }
+      })
+  })
   
 })
